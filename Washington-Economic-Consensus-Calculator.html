@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Washington Economic Consensus Calculator</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- React from CDNJS -->
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    
+    <style>
+        * {
+            font-family: 'Montserrat', sans-serif !important;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #ffffff;
+            padding: 0;
+            margin: 0;
+            color: #333;
+        }
+        
+        .calculator-container {
+            font-family: 'Montserrat', sans-serif;
+            width: 100%;
+            background-color: white;
+            padding: 20px;
+            min-height: 100vh;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        /* Economist-style typography hierarchy */
+        .calculator-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #262626;
+            margin: 0 0 8px 0;
+            line-height: 1.3;
+            text-align: left;
+        }
+        
+        .calculator-subtitle {
+            font-size: 14px;
+            font-weight: 400;
+            color: #666666;
+            margin: 0 0 32px 0;
+            line-height: 1.4;
+            text-align: left;
+            max-width: 600px;
+        }
+        
+        /* Input section styling */
+        .input-section {
+            background: #f8f8f8;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .input-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 12px;
+            display: block;
+        }
+        
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .percentage-input {
+            padding: 12px 16px;
+            border: 1px solid #d0d0d0;
+            border-radius: 4px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+            font-size: 16px;
+            width: 120px;
+            text-align: center;
+            background: white;
+        }
+        
+        .percentage-input:focus {
+            outline: none;
+            border-color: #00528a;
+            box-shadow: 0 0 0 2px rgba(0, 82, 138, 0.1);
+        }
+        
+        .preset-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .preset-button {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid #d0d0d0;
+            background: white;
+            color: #333;
+        }
+        
+        .preset-button:hover {
+            border-color: #00528a;
+            background: #f0f7ff;
+        }
+        
+        .preset-button.active {
+            background: #00528a;
+            color: white;
+            border-color: #00528a;
+        }
+        
+        /* Results grid */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .result-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 24px;
+            position: relative;
+        }
+        
+        .result-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            border-radius: 4px 4px 0 0;
+        }
+        
+        .result-card.revenue::before {
+            background: #20b2aa;
+        }
+        
+        .result-card.costs::before {
+            background: #b15bcf;
+        }
+        
+        .result-card.votes::before {
+            background: #00528a;
+        }
+        
+        .result-card.ratio::before {
+            background: #ff6b6b;
+        }
+        
+        .result-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #262626;
+            margin-bottom: 8px;
+        }
+        
+        .result-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        
+        .revenue .result-value {
+            color: #20b2aa;
+        }
+        
+        .costs .result-value {
+            color: #b15bcf;
+        }
+        
+        .votes .result-value {
+            color: #00528a;
+        }
+        
+        .ratio .result-value {
+            color: #ff6b6b;
+        }
+        
+        .result-description {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        /* Explanation section */
+        .explanation-section {
+            background: #f8f8f8;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .explanation-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #262626;
+            margin-bottom: 16px;
+        }
+        
+        .explanation-text {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+        
+        .ratio-highlight {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+        
+        .ratio-formula {
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            font-weight: 600;
+            color: #00528a;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        
+        .ratio-explanation {
+            font-size: 13px;
+            color: #666;
+            text-align: center;
+        }
+        
+        /* Source styling */
+        .calculator-source {
+            font-size: 11px;
+            font-weight: 400;
+            color: #888;
+            margin-top: 24px;
+            line-height: 1.3;
+            text-align: left;
+        }
+        
+        @media (max-width: 768px) {
+            .calculator-container {
+                padding: 16px;
+            }
+            
+            .calculator-title {
+                font-size: 18px;
+            }
+            
+            .calculator-subtitle {
+                font-size: 13px;
+            }
+            
+            .input-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .percentage-input {
+                width: 100%;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .result-value {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="washington-calculator"></div>
+
+    <script>
+        // Check libraries
+        if (typeof React === 'undefined') {
+            document.getElementById('washington-calculator').innerHTML = 
+                '<div style="padding: 20px; text-align: center; color: red;">React not loaded</div>';
+            throw new Error('React not loaded');
+        }
+
+        const { useState, useEffect } = React;
+
+        const WashingtonConsensusCalculator = () => {
+            const [ownershipPercentage, setOwnershipPercentage] = useState(10);
+            const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+            
+            // Track window width for responsive design
+            useEffect(() => {
+                const handleResize = () => {
+                    setWindowWidth(window.innerWidth);
+                };
+                
+                window.addEventListener('resize', handleResize);
+                return () => window.removeEventListener('resize', handleResize);
+            }, []);
+            
+            const isMobile = windowWidth < 768;
+            
+            // Base values for 100% ownership (total ecosystem)
+            const baseValues = {
+                totalRevenue: 1000000, // $1M total revenue
+                totalCosts: 250000,    // $250K total costs
+                totalVotes: 10000      // 10K total votes
+            };
+            
+            // Calculate proportional values based on ownership
+            const calculateValues = () => {
+                const ownershipRatio = ownershipPercentage / 100;
+                
+                return {
+                    revenue: baseValues.totalRevenue * ownershipRatio,
+                    costs: baseValues.totalCosts * ownershipRatio,
+                    votes: Math.round(baseValues.totalVotes * ownershipRatio),
+                    equalRatio: 25 // Always 25% in 1:1:1:1 system
+                };
+            };
+            
+            const values = calculateValues();
+            
+            // Format currency
+            const formatCurrency = (value) => {
+                return new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                }).format(value);
+            };
+            
+            // Format number with commas
+            const formatNumber = (value) => {
+                return new Intl.NumberFormat('en-US').format(value);
+            };
+            
+            // Handle input change
+            const handleInputChange = (e) => {
+                const value = parseFloat(e.target.value);
+                if (!isNaN(value) && value >= 0 && value <= 100) {
+                    setOwnershipPercentage(value);
+                }
+            };
+            
+            // Preset buttons
+            const presets = [1, 5, 10, 25, 50, 75, 100];
+            
+            return React.createElement('div', {
+                className: 'calculator-container'
+            }, [
+                // Title section
+                React.createElement('h1', {
+                    key: 'title',
+                    className: 'calculator-title'
+                }, 'Hamilton\'s Ratio Implementation Calculator'),
+                
+                React.createElement('p', {
+                    key: 'subtitle',
+                    className: 'calculator-subtitle'
+                }, 'Interactive demonstration of the 1:1:1:1 ratio ensuring democratic AI governance while preventing wealth concentration'),
+                
+                // Input section
+                React.createElement('div', {
+                    key: 'input-section',
+                    className: 'input-section'
+                }, [
+                    React.createElement('label', {
+                        key: 'label',
+                        className: 'input-label'
+                    }, 'Your Ownership Percentage:'),
+                    
+                    React.createElement('div', {
+                        key: 'input-wrapper',
+                        className: 'input-wrapper'
+                    }, [
+                        React.createElement('input', {
+                            key: 'input',
+                            type: 'number',
+                            className: 'percentage-input',
+                            value: ownershipPercentage,
+                            onChange: handleInputChange,
+                            min: 0,
+                            max: 100,
+                            step: 0.1,
+                            placeholder: '10'
+                        }),
+                        
+                        React.createElement('span', {
+                            key: 'percent-sign',
+                            style: { fontSize: '16px', fontWeight: '500', color: '#333' }
+                        }, '%')
+                    ]),
+                    
+                    React.createElement('div', {
+                        key: 'presets',
+                        className: 'preset-buttons'
+                    }, presets.map(preset => 
+                        React.createElement('button', {
+                            key: preset,
+                            className: `preset-button ${ownershipPercentage === preset ? 'active' : ''}`,
+                            onClick: () => setOwnershipPercentage(preset)
+                        }, `${preset}%`)
+                    ))
+                ]),
+                
+                // Results grid
+                React.createElement('div', {
+                    key: 'results-grid',
+                    className: 'results-grid'
+                }, [
+                    // Revenue card
+                    React.createElement('div', {
+                        key: 'revenue-card',
+                        className: 'result-card revenue'
+                    }, [
+                        React.createElement('div', {
+                            key: 'title',
+                            className: 'result-title'
+                        }, 'Revenue Share'),
+                        React.createElement('div', {
+                            key: 'value',
+                            className: 'result-value'
+                        }, formatCurrency(values.revenue)),
+                        React.createElement('div', {
+                            key: 'description',
+                            className: 'result-description'
+                        }, `${ownershipPercentage}% of revenue (proportional rewards) - prevents concentration while ensuring fair distribution`)
+                    ]),
+                    
+                    // Costs card
+                    React.createElement('div', {
+                        key: 'costs-card',
+                        className: 'result-card costs'
+                    }, [
+                        React.createElement('div', {
+                            key: 'title',
+                            className: 'result-title'
+                        }, 'Production Costs Shared'),
+                        React.createElement('div', {
+                            key: 'value',
+                            className: 'result-value'
+                        }, formatCurrency(values.costs)),
+                        React.createElement('div', {
+                            key: 'description',
+                            className: 'result-description'
+                        }, `${ownershipPercentage}% of infrastructure costs (fair distribution) - everyone contributes proportionally`)
+                    ]),
+                    
+                    // Votes card  
+                    React.createElement('div', {
+                        key: 'votes-card',
+                        className: 'result-card votes'
+                    }, [
+                        React.createElement('div', {
+                            key: 'title',
+                            className: 'result-title'
+                        }, 'Democratic Power'),
+                        React.createElement('div', {
+                            key: 'value',
+                            className: 'result-value'
+                        }, '1 Vote'),
+                        React.createElement('div', {
+                            key: 'description',
+                            className: 'result-description'
+                        }, 'Equal democratic power - your vote counts the same regardless of wealth or ownership size')
+                    ]),
+                    
+                    // Governance card (updated from ratio card)
+                    React.createElement('div', {
+                        key: 'governance-card',
+                        className: 'result-card ratio'
+                    }, [
+                        React.createElement('div', {
+                            key: 'title',
+                            className: 'result-title'
+                        }, 'AI Governance Control'),
+                        React.createElement('div', {
+                            key: 'value',
+                            className: 'result-value'
+                        }, '1 Vote'),
+                        React.createElement('div', {
+                            key: 'description',
+                            className: 'result-description'
+                        }, 'Equal democratic power over AI decisions - prevents wealth from controlling AI development regardless of ownership size')
+                    ])
+                ]),
+                
+                // Explanation section
+                React.createElement('div', {
+                    key: 'explanation',
+                    className: 'explanation-section'
+                }, [
+                    React.createElement('div', {
+                        key: 'title',
+                        className: 'explanation-title'
+                    }, 'Hamilton\'s Ratio: Democratic AI Governance'),
+                    
+                    React.createElement('div', {
+                        key: 'text1',
+                        className: 'explanation-text'
+                    }, 'Hamilton\'s Ratio implements a revolutionary 1:1:1:1 system that ensures your AI decisions stay in your community\'s control, regardless of individual wealth or stake size.'),
+                    
+                    React.createElement('div', {
+                        key: 'ratio-highlight',
+                        className: 'ratio-highlight'
+                    }, [
+                        React.createElement('div', {
+                            key: 'formula',
+                            className: 'ratio-formula'
+                        }, 'Security Owned : Revenue Earned : Production Costs : AI Votes = 1 : 1 : 1 : 1'),
+                        React.createElement('div', {
+                            key: 'explanation',
+                            className: 'ratio-explanation'
+                        }, 'Perfect equality preventing wealth-based AI control')
+                    ]),
+                    
+                    React.createElement('div', {
+                        key: 'text2',
+                        className: 'explanation-text'
+                    }, 'Unlike traditional systems where wealth equals power, Hamilton\'s Ratio ensures your community maintains democratic oversight of AI decisions while AI companies continue advancing capabilities through community-governed infrastructure.'),
+                    
+                    React.createElement('div', {
+                        key: 'text3',
+                        className: 'explanation-text'
+                    }, 'Each participant gets proportional rewards (1% ownership = 1% revenue) but equal democratic power over AI governance. This prevents concentration while ensuring fair distribution and community control over AI development.'),
+                    
+                    React.createElement('div', {
+                        key: 'ai-governance',
+                        className: 'explanation-text',
+                        style: { fontWeight: '500', color: '#00528a', marginTop: '16px' }
+                    }, '🤖 Key Principle: Your AI Decisions Stay in Your Community\'s Control')
+                ]),
+                
+                // Source
+                React.createElement('div', {
+                    key: 'source',
+                    className: 'calculator-source'
+                }, 'Source: Hamilton\'s Ratio Implementation - Democratic AI Governance Protocol')
+            ]);
+        };
+
+        // Render with better error handling
+        const initCalculator = () => {
+            try {
+                if (typeof React === 'undefined' || typeof ReactDOM === 'undefined') {
+                    throw new Error('React libraries not loaded');
+                }
+                
+                const root = ReactDOM.createRoot(document.getElementById('washington-calculator'));
+                root.render(React.createElement(WashingtonConsensusCalculator));
+            } catch (error) {
+                console.error('Calculator initialization error:', error);
+                document.getElementById('washington-calculator').innerHTML = 
+                    `<div style="padding: 20px; text-align: center; color: red; font-family: Montserrat, sans-serif;">
+                        <h3>Loading Error</h3>
+                        <p>Unable to load React components. Please refresh the page.</p>
+                        <p style="font-size: 12px; color: #666;">Error: ${error.message}</p>
+                    </div>`;
+            }
+        };
+
+        // Try to initialize immediately, then with delay
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initCalculator);
+        } else {
+            setTimeout(initCalculator, 100);
+        }
+    </script>
+</body>
+</html>

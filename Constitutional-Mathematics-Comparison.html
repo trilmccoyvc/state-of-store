@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Constitutional Mathematics Comparison</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- React & Chart.js -->
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.js"></script>
+    
+    <style>
+        * {
+            font-family: 'Montserrat', sans-serif !important;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #ffffff;
+            padding: 0;
+            margin: 0;
+            color: #333;
+        }
+        
+        .chart-container {
+            font-family: 'Montserrat', sans-serif;
+            width: 100%;
+            background-color: white;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        /* Economist-style typography hierarchy */
+        .chart-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #262626;
+            margin: 0 0 8px 0;
+            line-height: 1.3;
+            text-align: left;
+        }
+        
+        .chart-subtitle {
+            font-size: 14px;
+            font-weight: 400;
+            color: #666666;
+            margin: 0 0 24px 0;
+            line-height: 1.4;
+            text-align: left;
+            max-width: 700px;
+        }
+        
+        /* Slider Controls */
+        .controls-section {
+            background: #f8f8f8;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        .control-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .slider {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #00528a;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #00528a;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .slider-value {
+            min-width: 60px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #00528a;
+            text-align: right;
+        }
+        
+        /* Metrics Display */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .metric-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 16px;
+        }
+        
+        .metric-title {
+            font-size: 12px;
+            font-weight: 500;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .metric-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #262626;
+            margin-bottom: 4px;
+        }
+        
+        .metric-change {
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .metric-change.positive {
+            color: #20b2aa;
+        }
+        
+        .metric-change.negative {
+            color: #e74c3c;
+        }
+        
+        .metric-change.neutral {
+            color: #666;
+        }
+        
+        /* Chart area styling */
+        .chart-wrapper {
+            margin-bottom: 16px;
+            border: 1px solid #e0e0e0;
+            background: white;
+        }
+        
+        /* Legend styling */
+        .custom-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px 20px;
+            margin-top: 12px;
+            font-size: 12px;
+            font-weight: 400;
+            color: #333;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        
+        .legend-line {
+            width: 16px;
+            height: 2px;
+        }
+        
+        /* Mathematical Guarantees Section */
+        .guarantees-section {
+            background: linear-gradient(135deg, #00528a 0%, #20b2aa 100%);
+            border-radius: 8px;
+            padding: 24px;
+            margin: 24px 0;
+            color: white;
+        }
+        
+        .guarantees-title {
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 8px;
+            color: white;
+        }
+        
+        .guarantees-subtitle {
+            font-size: 13px;
+            font-weight: 400;
+            text-align: center;
+            margin-bottom: 24px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .guarantees-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        
+        .guarantee-card {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 6px;
+            padding: 18px;
+            backdrop-filter: blur(10px);
+            transition: all 0.2s ease;
+        }
+        
+        .guarantee-card:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.35);
+        }
+        
+        .guarantee-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: white;
+            text-align: center;
+        }
+        
+        .guarantee-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: white;
+            text-align: center;
+        }
+        
+        .guarantee-description {
+            font-size: 12px;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.85);
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        /* Source/notes styling */
+        .chart-source {
+            font-size: 11px;
+            font-weight: 400;
+            color: #888;
+            margin-top: 12px;
+            line-height: 1.3;
+            text-align: left;
+        }
+        
+        @media (max-width: 768px) {
+            .chart-container {
+                padding: 16px;
+            }
+            
+            .chart-title {
+                font-size: 18px;
+            }
+            
+            .chart-subtitle {
+                font-size: 13px;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .slider-container {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            
+            .slider-value {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="constitutional-math-chart"></div>
+
+    <script>
+        // Function to check if libraries are loaded
+        function checkLibraries() {
+            if (typeof React === 'undefined') {
+                document.getElementById('constitutional-math-chart').innerHTML = 
+                    '<div style="padding: 20px; text-align: center; color: red; font-family: Montserrat, sans-serif;">React sedang dimuat... Mohon tunggu.</div>';
+                return false;
+            }
+
+            if (typeof ReactDOM === 'undefined') {
+                document.getElementById('constitutional-math-chart').innerHTML = 
+                    '<div style="padding: 20px; text-align: center; color: red; font-family: Montserrat, sans-serif;">ReactDOM sedang dimuat... Mohon tunggu.</div>';
+                return false;
+            }
+
+            if (typeof Chart === 'undefined') {
+                document.getElementById('constitutional-math-chart').innerHTML = 
+                    '<div style="padding: 20px; text-align: center; color: red; font-family: Montserrat, sans-serif;">Chart.js sedang dimuat... Mohon tunggu.</div>';
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Wait for libraries to load
+        function waitForLibraries() {
+            if (checkLibraries()) {
+                initializeApp();
+            } else {
+                setTimeout(waitForLibraries, 500);
+            }
+        }
+
+        // Initialize the app
+        function initializeApp() {
+            try {
+
+        const { useState, useEffect, useRef } = React;
+
+        const ConstitutionalMathComparison = () => {
+            const [networkSize, setNetworkSize] = useState(1000);
+            const [timeMonths, setTimeMonths] = useState(12);
+            const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+            const chartRef = useRef(null);
+            const chartInstance = useRef(null);
+            
+            useEffect(() => {
+                const handleResize = () => {
+                    setWindowWidth(window.innerWidth);
+                };
+                
+                window.addEventListener('resize', handleResize);
+                return () => window.removeEventListener('resize', handleResize);
+            }, []);
+            
+            const isMobile = windowWidth < 640;
+            
+            // Constitutional Mathematics Calculations
+            const calculateTraditionalNetwork = (size, time) => {
+                // Traditional networks: power law concentration
+                const concentrationFactor = Math.pow(size, 0.8) / Math.pow(100, 0.8);
+                const topNodePower = 0.3 + (0.4 * concentrationFactor); // 30-70% concentration
+                const avgNodePower = (1 - topNodePower) / (size - 1);
+                const giniCoefficient = 0.6 + (0.3 * Math.min(concentrationFactor, 1));
+                
+                // Value degradation over time due to concentration
+                const timeDecay = Math.max(0.7, 1 - (time * 0.02));
+                
+                return {
+                    topNodePower: topNodePower * timeDecay,
+                    avgNodePower: avgNodePower * timeDecay,
+                    giniCoefficient: Math.min(0.95, giniCoefficient),
+                    democraticStrength: Math.max(0.1, (1 - giniCoefficient) * timeDecay),
+                    networkResilience: Math.max(0.2, 0.8 - (concentrationFactor * 0.4)),
+                    totalValue: size * (1 - giniCoefficient * 0.6) * timeDecay
+                };
+            };
+            
+            const calculateHamiltonSystem = (size, time) => {
+                // Hamilton's System: 1:1:1:1 constitutional distribution
+                const baseDistribution = 0.25; // Each quadrant gets 25%
+                const constitutionalStability = 0.98; // 98% stability due to constitutional framework
+                
+                // Democratic strengthening over time (constitutional effect)
+                const timeStrengthening = Math.min(1.4, 1 + (time * 0.015));
+                const sizeResilience = Math.min(1.2, 1 + Math.log10(size / 100) * 0.1);
+                
+                const democraticStrength = Math.min(0.95, 0.85 * timeStrengthening * sizeResilience);
+                const giniCoefficient = Math.max(0.15, 0.25 - (timeStrengthening - 1) * 0.5);
+                
+                return {
+                    topNodePower: baseDistribution * constitutionalStability,
+                    avgNodePower: baseDistribution * constitutionalStability,
+                    giniCoefficient: giniCoefficient,
+                    democraticStrength: democraticStrength,
+                    networkResilience: Math.min(0.95, 0.9 * timeStrengthening),
+                    totalValue: size * democraticStrength * 1.3 // 30% value premium from democratic efficiency
+                };
+            };
+            
+            const traditional = calculateTraditionalNetwork(networkSize, timeMonths);
+            const hamilton = calculateHamiltonSystem(networkSize, timeMonths);
+            
+            // Generate time series data for the chart
+            const generateTimeSeriesData = () => {
+                const months = Array.from({length: Math.min(timeMonths + 1, 37)}, (_, i) => i);
+                
+                return months.map(month => {
+                    const trad = calculateTraditionalNetwork(networkSize, month);
+                    const ham = calculateHamiltonSystem(networkSize, month);
+                    
+                    return {
+                        month,
+                        traditionalDemocratic: trad.democraticStrength * 100,
+                        hamiltonDemocratic: ham.democraticStrength * 100,
+                        traditionalConcentration: trad.giniCoefficient * 100,
+                        hamiltonConcentration: ham.giniCoefficient * 100,
+                        traditionalResilience: trad.networkResilience * 100,
+                        hamiltonResilience: ham.networkResilience * 100
+                    };
+                });
+            };
+            
+            const formatPercentage = (value) => `${value.toFixed(1)}%`;
+            const formatValue = (value) => {
+                if (value >= 1000000) return `${(value/1000000).toFixed(1)}M`;
+                if (value >= 1000) return `${(value/1000).toFixed(1)}K`;
+                return value.toFixed(0);
+            };
+            
+            const getChangeClass = (traditional, hamilton) => {
+                const diff = hamilton - traditional;
+                if (diff > 0.05) return 'positive';
+                if (diff < -0.05) return 'negative';
+                return 'neutral';
+            };
+            
+            const getChangeText = (traditional, hamilton, isPercentage = false) => {
+                const diff = hamilton - traditional;
+                const sign = diff > 0 ? '+' : '';
+                if (isPercentage) {
+                    return `${sign}${(diff * 100).toFixed(1)}pp vs Traditional`;
+                } else {
+                    const pctChange = ((diff / traditional) * 100);
+                    return `${sign}${pctChange.toFixed(1)}% vs Traditional`;
+                }
+            };
+            
+            // Create chart
+            useEffect(() => {
+                if (chartRef.current) {
+                    if (chartInstance.current) {
+                        chartInstance.current.destroy();
+                    }
+                    
+                    const ctx = chartRef.current.getContext('2d');
+                    const data = generateTimeSeriesData();
+                    
+                    chartInstance.current = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: data.map(d => d.month),
+                            datasets: [
+                                {
+                                    label: 'Traditional: Democratic Strength',
+                                    data: data.map(d => d.traditionalDemocratic),
+                                    borderColor: '#e74c3c',
+                                    backgroundColor: '#e74c3c',
+                                    borderWidth: isMobile ? 1.5 : 2,
+                                    borderDash: [5, 5],
+                                    fill: false,
+                                    pointRadius: isMobile ? 1 : 2,
+                                    pointHoverRadius: isMobile ? 4 : 6,
+                                },
+                                {
+                                    label: "Hamilton's: Democratic Strength",
+                                    data: data.map(d => d.hamiltonDemocratic),
+                                    borderColor: '#20b2aa',
+                                    backgroundColor: '#20b2aa',
+                                    borderWidth: isMobile ? 1.5 : 2,
+                                    fill: false,
+                                    pointRadius: isMobile ? 1 : 2,
+                                    pointHoverRadius: isMobile ? 4 : 6,
+                                },
+                                {
+                                    label: 'Traditional: Value Concentration',
+                                    data: data.map(d => d.traditionalConcentration),
+                                    borderColor: '#ff6b6b',
+                                    backgroundColor: '#ff6b6b',
+                                    borderWidth: isMobile ? 1.5 : 2,
+                                    borderDash: [3, 3],
+                                    fill: false,
+                                    pointRadius: isMobile ? 1 : 2,
+                                    pointHoverRadius: isMobile ? 4 : 6,
+                                },
+                                {
+                                    label: "Hamilton's: Value Concentration",
+                                    data: data.map(d => d.hamiltonConcentration),
+                                    borderColor: '#00528a',
+                                    backgroundColor: '#00528a',
+                                    borderWidth: isMobile ? 1.5 : 2,
+                                    fill: false,
+                                    pointRadius: isMobile ? 1 : 2,
+                                    pointHoverRadius: isMobile ? 4 : 6,
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: {
+                                intersect: false,
+                                mode: 'index'
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    backgroundColor: 'white',
+                                    titleColor: '#000',
+                                    bodyColor: '#000',
+                                    borderColor: '#e0e0e0',
+                                    borderWidth: 1,
+                                    cornerRadius: 4,
+                                    titleFont: {
+                                        family: 'Montserrat, sans-serif',
+                                        weight: 600,
+                                        size: 13
+                                    },
+                                    bodyFont: {
+                                        family: 'Montserrat, sans-serif',
+                                        weight: 400,
+                                        size: 12
+                                    },
+                                    callbacks: {
+                                        title: function(context) {
+                                            return `Month: ${context[0].label}`;
+                                        },
+                                        label: function(context) {
+                                            return `${context.dataset.label}: ${context.parsed.y.toFixed(1)}%`;
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Time (months)',
+                                        font: {
+                                            family: 'Montserrat, sans-serif',
+                                            weight: '500',
+                                            size: 13
+                                        },
+                                        color: '#333'
+                                    },
+                                    ticks: {
+                                        font: {
+                                            family: 'Montserrat, sans-serif',
+                                            weight: '400',
+                                            size: 12
+                                        },
+                                        color: '#666'
+                                    },
+                                    grid: {
+                                        color: '#e0e0e0',
+                                        drawBorder: true,
+                                        borderColor: '#333'
+                                    }
+                                },
+                                y: {
+                                    min: 0,
+                                    max: 100,
+                                    title: {
+                                        display: true,
+                                        text: 'Percentage (%)',
+                                        font: {
+                                            family: 'Montserrat, sans-serif',
+                                            weight: '500',
+                                            size: 13
+                                        },
+                                        color: '#333'
+                                    },
+                                    ticks: {
+                                        font: {
+                                            family: 'Montserrat, sans-serif',
+                                            weight: '400',
+                                            size: 12
+                                        },
+                                        color: '#666',
+                                        callback: function(value) {
+                                            return value + '%';
+                                        }
+                                    },
+                                    grid: {
+                                        color: '#e0e0e0',
+                                        drawBorder: true,
+                                        borderColor: '#333'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }, [networkSize, timeMonths, isMobile]);
+            
+            useEffect(() => {
+                return () => {
+                    if (chartInstance.current) {
+                        chartInstance.current.destroy();
+                    }
+                };
+            }, []);
+            
+            return React.createElement('div', {
+                className: 'chart-container'
+            }, [
+                React.createElement('h1', {
+                    key: 'title',
+                    className: 'chart-title'
+                }, 'Constitutional Mathematics Comparison'),
+                
+                React.createElement('p', {
+                    key: 'subtitle',
+                    className: 'chart-subtitle'
+                }, 'Traditional networks concentrate power over time, while Hamilton\'s 1:1:1:1 system strengthens democratic participation through constitutional distribution mechanisms'),
+                
+                React.createElement('div', {
+                    key: 'controls',
+                    className: 'controls-section'
+                }, [
+                    React.createElement('div', {
+                        key: 'network-size',
+                        className: 'control-group'
+                    }, [
+                        React.createElement('label', {
+                            key: 'label',
+                            className: 'control-label'
+                        }, 'Network Size (participants)'),
+                        React.createElement('div', {
+                            key: 'slider-container',
+                            className: 'slider-container'
+                        }, [
+                            React.createElement('input', {
+                                key: 'slider',
+                                type: 'range',
+                                className: 'slider',
+                                min: 100,
+                                max: 10000,
+                                step: 100,
+                                value: networkSize,
+                                onChange: (e) => setNetworkSize(parseInt(e.target.value))
+                            }),
+                            React.createElement('span', {
+                                key: 'value',
+                                className: 'slider-value'
+                            }, formatValue(networkSize))
+                        ])
+                    ]),
+                    
+                    React.createElement('div', {
+                        key: 'time-months',
+                        className: 'control-group'
+                    }, [
+                        React.createElement('label', {
+                            key: 'label',
+                            className: 'control-label'
+                        }, 'Time Period (months)'),
+                        React.createElement('div', {
+                            key: 'slider-container',
+                            className: 'slider-container'
+                        }, [
+                            React.createElement('input', {
+                                key: 'slider',
+                                type: 'range',
+                                className: 'slider',
+                                min: 1,
+                                max: 36,
+                                step: 1,
+                                value: timeMonths,
+                                onChange: (e) => setTimeMonths(parseInt(e.target.value))
+                            }),
+                            React.createElement('span', {
+                                key: 'value',
+                                className: 'slider-value'
+                            }, `${timeMonths}mo`)
+                        ])
+                    ])
+                ]),
+                
+                React.createElement('div', {
+                    key: 'metrics',
+                    className: 'metrics-grid'
+                }, [
+                    React.createElement('div', {
+                        key: 'democratic',
+                        className: 'metric-card'
+                    }, [
+                        React.createElement('div', {
+                            key: 'title',
+                            className: 'metric-title'
+                        }, 'Democratic Strength'),
+                        React.createElement('div', {
+                            key: 'value',
+                            className: 'metric-value'
+                        }, formatPercentage(hamilton.democraticStrength * 100)),
+                        React.createElement('div', {
+                            key: 'change',
+                            className: `metric-change ${getChangeClass(traditional.democraticStrength, hamilton.democraticStrength)}`
+                        }, getChangeText(traditional.democraticStrength, hamilton.democraticStrength, true))
+                    ]),
+                    
+                    React.createElement('div', {
+                        key: 'concentration',
+                        className: 'metric-card'
+                    }, [
+                        React.createElement('div', {
+                            key: 'title',
+                            className: 'metric-title'
+                        }, 'Value Concentration (Gini)'),
+                        React.createElement('div', {
+                            key: 'value',
+                            className: 'metric-value'
+                        }, formatPercentage(hamilton.giniCoefficient * 100)),
+                        React.createElement('div', {
+                            key: 'change',
+                            className: `metric-change ${getChangeClass(traditional.giniCoefficient, hamilton.giniCoefficient)}`
+                        }, getChangeText(traditional.giniCoefficient, hamilton.giniCoefficient, true))
+                    ]),
+                    
+                    React.createElement('div', {
+                        key: 'resilience',
+                        className: 'metric-card'
+                    }, [
+                        React.createElement('div', {
+                            key: 'title',
+                            className: 'metric-title'
+                        }, 'Network Resilience'),
+                        React.createElement('div', {
+                            key: 'value',
+                            className: 'metric-value'
+                        }, formatPercentage(hamilton.networkResilience * 100)),
+                        React.createElement('div', {
+                            key: 'change',
+                            className: `metric-change ${getChangeClass(traditional.networkResilience, hamilton.networkResilience)}`
+                        }, getChangeText(traditional.networkResilience, hamilton.networkResilience, true))
+                    ]),
+                    
+                    React.createElement('div', {
+                        key: 'total-value',
+                        className: 'metric-card'
+                    }, [
+                        React.createElement('div', {
+                            key: 'title',
+                            className: 'metric-title'
+                        }, 'Total Network Value'),
+                        React.createElement('div', {
+                            key: 'value',
+                            className: 'metric-value'
+                        }, formatValue(hamilton.totalValue)),
+                        React.createElement('div', {
+                            key: 'change',
+                            className: `metric-change ${getChangeClass(traditional.totalValue, hamilton.totalValue)}`
+                        }, getChangeText(traditional.totalValue, hamilton.totalValue))
+                    ])
+                ]),
+                
+                React.createElement('div', {
+                    key: 'guarantees-section',
+                    className: 'guarantees-section'
+                }, [
+                    React.createElement('h2', {
+                        key: 'guarantees-title',
+                        className: 'guarantees-title'
+                    }, 'Mathematical Guarantees'),
+                    
+                    React.createElement('p', {
+                        key: 'guarantees-subtitle',
+                        className: 'guarantees-subtitle'
+                    }, 'Human sovereignty mathematically enforced at machine speed'),
+                    
+                    React.createElement('div', {
+                        key: 'guarantees-grid',
+                        className: 'guarantees-grid'
+                    }, [
+                        React.createElement('div', {
+                            key: 'max-control',
+                            className: 'guarantee-card'
+                        }, [
+                            React.createElement('div', {
+                                key: 'value',
+                                className: 'guarantee-value'
+                            }, '≤33%'),
+                            React.createElement('div', {
+                                key: 'name',
+                                className: 'guarantee-name'
+                            }, 'Maximum Control'),
+                            React.createElement('div', {
+                                key: 'description',
+                                className: 'guarantee-description'
+                            }, 'No single entity can dominate')
+                        ]),
+                        
+                        React.createElement('div', {
+                            key: 'malicious-tolerance',
+                            className: 'guarantee-card'
+                        }, [
+                            React.createElement('div', {
+                                key: 'value',
+                                className: 'guarantee-value'
+                            }, '31'),
+                            React.createElement('div', {
+                                key: 'name',
+                                className: 'guarantee-name'
+                            }, 'Malicious Tolerance'),
+                            React.createElement('div', {
+                                key: 'description',
+                                className: 'guarantee-description'
+                            }, 'AI systems can be corrupted safely')
+                        ]),
+                        
+                        React.createElement('div', {
+                            key: 'human-supermajority',
+                            className: 'guarantee-card'
+                        }, [
+                            React.createElement('div', {
+                                key: 'value',
+                                className: 'guarantee-value'
+                            }, '≥67%'),
+                            React.createElement('div', {
+                                key: 'name',
+                                className: 'guarantee-name'
+                            }, 'Human Supermajority'),
+                            React.createElement('div', {
+                                key: 'description',
+                                className: 'guarantee-description'
+                            }, 'Required for all decisions')
+                        ]),
+                        
+                        React.createElement('div', {
+                            key: 'scale-resistant',
+                            className: 'guarantee-card'
+                        }, [
+                            React.createElement('div', {
+                                key: 'value',
+                                className: 'guarantee-value'
+                            }, '∞'),
+                            React.createElement('div', {
+                                key: 'name',
+                                className: 'guarantee-name'
+                            }, 'Scale Resistant'),
+                            React.createElement('div', {
+                                key: 'description',
+                                className: 'guarantee-description'
+                            }, 'Democracy strengthens with AI')
+                        ])
+                    ])
+                ]),
+                
+                React.createElement('div', {
+                    key: 'chart-wrapper',
+                    className: 'chart-wrapper',
+                    style: {
+                        width: '100%',
+                        height: isMobile ? '320px' : '400px',
+                        padding: '16px'
+                    }
+                }, 
+                    React.createElement('canvas', {
+                        key: 'chart',
+                        ref: chartRef,
+                        style: {
+                            width: '100%',
+                            height: '100%'
+                        }
+                    })
+                ),
+                
+                React.createElement('div', {
+                    key: 'custom-legend',
+                    className: 'custom-legend'
+                }, [
+                    React.createElement('div', {
+                        key: 'trad-democratic',
+                        className: 'legend-item'
+                    }, [
+                        React.createElement('span', {
+                            key: 'line',
+                            className: 'legend-line',
+                            style: { 
+                                background: 'repeating-linear-gradient(to right, #e74c3c 0px, #e74c3c 5px, transparent 5px, transparent 10px)',
+                                height: '2px'
+                            }
+                        }),
+                        React.createElement('span', {
+                            key: 'text'
+                        }, 'Traditional: Democratic Strength')
+                    ]),
+                    
+                    React.createElement('div', {
+                        key: 'ham-democratic',
+                        className: 'legend-item'
+                    }, [
+                        React.createElement('span', {
+                            key: 'line',
+                            className: 'legend-line',
+                            style: { backgroundColor: '#20b2aa' }
+                        }),
+                        React.createElement('span', {
+                            key: 'text'
+                        }, "Hamilton's: Democratic Strength")
+                    ]),
+                    
+                    React.createElement('div', {
+                        key: 'trad-concentration',
+                        className: 'legend-item'
+                    }, [
+                        React.createElement('span', {
+                            key: 'line',
+                            className: 'legend-line',
+                            style: { 
+                                background: 'repeating-linear-gradient(to right, #ff6b6b 0px, #ff6b6b 3px, transparent 3px, transparent 6px)',
+                                height: '2px'
+                            }
+                        }),
+                        React.createElement('span', {
+                            key: 'text'
+                        }, 'Traditional: Value Concentration')
+                    ]),
+                    
+                    React.createElement('div', {
+                        key: 'ham-concentration',
+                        className: 'legend-item'
+                    }, [
+                        React.createElement('span', {
+                            key: 'line',
+                            className: 'legend-line',
+                            style: { backgroundColor: '#00528a' }
+                        }),
+                        React.createElement('span', {
+                            key: 'text'
+                        }, "Hamilton's: Value Concentration")
+                    ])
+                ]),
+                
+                React.createElement('div', {
+                    key: 'source',
+                    className: 'chart-source'
+                }, 'Source: Constitutional mathematics modeling of 1:1:1:1 distribution vs traditional power-law networks')
+            ]);
+        };
+
+        // Render
+        try {
+            const root = ReactDOM.createRoot(document.getElementById('constitutional-math-chart'));
+            root.render(React.createElement(ConstitutionalMathComparison));
+        } catch (error) {
+            console.error('Error rendering component:', error);
+            document.getElementById('constitutional-math-chart').innerHTML = 
+                `<div style="padding: 20px; text-align: center; color: red; font-family: Montserrat, sans-serif;">Error: ${error.message}</div>`;
+        }
+        } catch (globalError) {
+            console.error('Global error:', globalError);
+            document.getElementById('constitutional-math-chart').innerHTML = 
+                `<div style="padding: 20px; text-align: center; color: red; font-family: Montserrat, sans-serif;">Initialization Error: ${globalError.message}</div>`;
+        }
+        }
+
+        // Start the application
+        document.addEventListener('DOMContentLoaded', function() {
+            waitForLibraries();
+        });
+
+        // Fallback if DOMContentLoaded already fired
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', waitForLibraries);
+        } else {
+            waitForLibraries();
+        }
+    </script>
+</body>
+</html>
